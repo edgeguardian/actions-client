@@ -1,0 +1,12 @@
+name: 'EdgeGuardian client'
+description: 'EdgeGuardian private access'
+
+inputs:
+  api_key:
+    description: "User's API key.  Create one on https://app.edge-guardian.io/ui/api_keys"
+    required: true
+
+runs:
+  using: 'node16'
+  main: 'dist/main/index.js'
+  post: 'dist/cleanup/index.js'
