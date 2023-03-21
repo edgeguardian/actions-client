@@ -1,0 +1,30 @@
+{
+  "name": "actions-client",
+  "version": "0.0.1",
+  "description": "EdgeGuardian GitHub Actions client",
+  "main": "main.js",
+  "scripts": {
+    "prepare": "ncc build cleanup.js -o dist/cleanup/ && ncc build main.js -o dist/main/",
+    "all": "npm run prepare"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jvimal-eg/actions-client"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Proprietary",
+  "bugs": {
+    "url": "https://github.com/jvimal-eg/actions-client/issues"
+  },
+  "homepage": "https://github.com/jvimal-eg/actions-client",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^5.0.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.31.1",
+    "eslint": "^8.0.0"
+  }
+}
