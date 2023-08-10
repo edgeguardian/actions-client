@@ -3987,7 +3987,35 @@ async function shell(command) {
     }
 }
 
+async function powershell(command) {
+    try {
+        const args = [
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            command,
+        ];
+        await exec.exec("powershell.exe", args);
+    } catch (error) {
+        core.setFailed(error.message);
+    }
+}
+
+async function cmd(command) {
+    try {
+        const args = [
+            "/c",
+            command,
+        ];
+        await exec.exec("cmd.exe", args);
+    } catch (error) {
+        core.setFailed(error.message);
+    }
+}
+
 exports.shell = shell;
+exports.powershell = powershell;
+exports.cmd = cmd;
 
 
 /***/ }),
@@ -4137,19 +4165,83 @@ module.exports = require("util");
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
+"use strict";
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(87);
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(os__WEBPACK_IMPORTED_MODULE_0__);
 const core = __nccwpck_require__(186);
-const { shell } = __nccwpck_require__(752);
+const { shell, cmd } = __nccwpck_require__(752);
+
+
+if (core.getState("EG_FAILED") == "true") {
+    if (core.getInput('submit_diagnostics_on_failure') == "true") {
+        try {
+            shell('egctl advanced log-upload');
+        } catch (error) { }
+    }
+    try {
+        shell('cat /var/log/edgeguardian/datapath.log || true;')
+    } catch (error) { }
+}
 
 try {
-    shell('egctl logout');
+    if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'linux') {
+        shell('curl localhost:3128/connections');
+        shell('egctl logout');
+    } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'win32') {
+        cmd(`curl localhost:3128/config & curl localhost:3128/connections`);
+    } else {
+        let platform = os__WEBPACK_IMPORTED_MODULE_0__.platform();
+        core.setFailed(`${platform} not supported`);
+    }
 } catch (error) {
     core.setFailed(error.message);
 }

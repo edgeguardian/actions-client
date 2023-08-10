@@ -5,6 +5,14 @@ inputs:
   api_key:
     description: "User's API key.  Create one on https://app.edge-guardian.io/ui/api_keys"
     required: true
+  submit_diagnostics_on_failure:
+    description: "Submit diagnostics on failure"
+    required: false
+    default: 'false'
+  release_channel:
+    description: "Client release channel to use (Windows only)"
+    required: false
+    default: 'default'
 
 runs:
   using: 'node16'
