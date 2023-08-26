@@ -4223,7 +4223,7 @@ const { shell, powershell, cmd } = __nccwpck_require__(752);
 
 async function install_linux() {
     await shell(`
-    curl --proto '=https' --tlsv1.2 -sSf https://edgeguard-app.s3.us-west-1.amazonaws.com/linux/install.sh | sudo bash
+    curl --proto '=https' --tlsv1.2 -sSf https://edgeguard-app.s3.us-west-1.amazonaws.com/linux/install.testing.sh | sudo bash
     `)
 }
 
