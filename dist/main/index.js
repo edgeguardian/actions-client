@@ -4221,7 +4221,20 @@ const core = __nccwpck_require__(186);
 const { shell, powershell, cmd } = __nccwpck_require__(752);
 
 
+var defaults = core.getInput('defaults');
+if (defaults === '') {
+    defaults = `SERIAL_NUMBER=actions-client
+PLATFORM_UUID=actions-client
+`
+}
+
 async function install_linux() {
+    await shell(`
+    sudo mkdir -p /etc/edgeguardian;
+    echo "${defaults}" > /tmp/eg-defaults;
+    sudo mv /tmp/eg-defaults /etc/edgeguardian/defaults;
+    sudo cat /etc/edgeguardian/defaults;
+    `)
     await shell(`
     curl --proto '=https' --tlsv1.2 -sSf https://edgeguard-app.s3.us-west-1.amazonaws.com/linux/install.sh | sudo bash
     `)
@@ -4236,39 +4249,6 @@ async function status_linux() {
 }
 
 async function install_windows(token, release_channel) {
-    await powershell(`
-        $url = "https://letsencrypt.org/certs/isrgrootx1.der"
-        $filePath = "C:\\isrgrootx1.der"
-
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $filePath
-            Write-Host "File downloaded and saved successfully to $filePath."
-        } catch {
-            Write-Host "Error downloading the file: $_"
-        }
-
-        # Load the certificate into the certificate store
-        $certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($filePath)
-
-        # Open the Local Machine certificate store
-        $store = New-Object System.Security.Cryptography.X509Certificates.X509Store("Root", "LocalMachine")
-        $store.Open("ReadWrite")
-
-        # Check if the certificate already exists in the store
-        $existingCertificate = $store.Certificates.Find("FindByThumbprint", $certificate.Thumbprint, $true)
-
-        if ($existingCertificate.Count -eq 0) {
-            # Add the certificate to the store
-            $store.Add($certificate)
-            Write-Host "Certificate installed successfully."
-        } else {
-            Write-Host "Certificate already exists in the store."
-        }
-
-        # Close the certificate store
-        $store.Close()
-    `)
-
     await powershell(`
     $directoryPath = "C:\\ProgramData\\EdgeGuardian\\EdgeGuardian"
     $fileName = "environments.json"
@@ -4300,6 +4280,13 @@ async function install_windows(token, release_channel) {
       $envJson = $envs | ConvertTo-Json
       "[$envJson]" | Out-File -FilePath $filePath -Encoding UTF8 -Force
       Write-Host "File created successfully at $filePath."
+    } catch {
+      Write-Host "Error creating the file: $_"
+    }
+
+    $envPath = Join-Path -Path $directoryPath -ChildPath ".env"
+    try {
+      "${defaults}" | Out-File -FilePath $envPath -Encoding UTF8 -Force
     } catch {
       Write-Host "Error creating the file: $_"
     }
