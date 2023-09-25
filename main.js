@@ -114,16 +114,16 @@ async function status_windows() {
 async function install_macos(token, release_channel) {
     await shell(`
     # create the environment file
-    sudo mkdir -p /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard
-    sudo rm -f /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard/environments.json
-    sudo echo "[
+    sudo mkdir -p /private/var/root/Library/Group\ Containers/647VU45UJX.edgeguard
+    sudo rm -f /private/var/root/Library/Group\ Containers/647VU45UJX.edgeguard/environments.json
+    echo "[
         {
-            \\"name\\": \\"001 prod\\",
-            \\"domain_suffix\\": \\"edge-guardian.io\\",
-            \\"echo_ips\\": [\\"13.248.203.97\\", \\"76.223.84.31\\"],
-            \\"api_token\\": \\"${token}\\"
+            \"name\": \"001 prod\",
+            \"domain_suffix\": \"edge-guardian.io\",
+            \"echo_ips\": [\"13.248.203.97\", \"76.223.84.31\"],
+            \"api_token\": \"${token}\"
         }
-    ]" > /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard/environments.json
+    ]" | sudo tee /private/var/root/Library/Group\ Containers/647VU45UJX.edgeguard/environments.json
     
     # install applications
     echo "https://edgeguard-app.s3.us-west-1.amazonaws.com/dmg/${release_channel}/EdgeGuardian-Installer.dmg"
@@ -136,7 +136,7 @@ async function install_macos(token, release_channel) {
     open /Applications/EdgeGuardian.app
     
     # wait for the app to start
-    sleep 10
+    sleep 30
     `)
 }
 
