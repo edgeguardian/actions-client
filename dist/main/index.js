@@ -4333,9 +4333,9 @@ async function status_windows() {
 async function install_macos(token, release_channel) {
     await shell(`
     # create the environment file
-    mkdir -p /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard
-    rm -f /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard/environments.json
-    echo "[
+    sudo mkdir -p /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard
+    sudo rm -f /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard/environments.json
+    sudo echo "[
         {
             \\"name\\": \\"001 prod\\",
             \\"domain_suffix\\": \\"edge-guardian.io\\",
@@ -4347,10 +4347,10 @@ async function install_macos(token, release_channel) {
     # install applications
     echo "https://edgeguard-app.s3.us-west-1.amazonaws.com/dmg/${release_channel}/EdgeGuardian-Installer.dmg"
     curl -O https://edgeguard-app.s3.us-west-1.amazonaws.com/dmg/${release_channel}/EdgeGuardian-Installer.dmg
-    hdiutil mount $DMG_FILE
+    hdiutil mount EdgeGuardian-Installer.dmg
     cp -R "/Volumes/Install EdgeGuardian/EdgeGuardian.app" /Applications
     hdiutil unmount "/Volumes/Install EdgeGuardian"
-    rm $DMG_FILE
+    rm EdgeGuardian-Installer.dmg
     
     open /Applications/EdgeGuardian.app
     
