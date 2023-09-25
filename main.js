@@ -166,7 +166,7 @@ async function main() {
         await install_linux();
         await login_linux(token);
         await status_linux();
-    } else if (os.platform() === 'macos') {
+    } else if (os.platform() === 'darwin') {
         await install_macos(token, release_channel);
         await status_macos();
     } else {
