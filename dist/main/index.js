@@ -4342,7 +4342,7 @@ async function install_macos(token, release_channel) {
             \"echo_ips\": [\"13.248.203.97\", \"76.223.84.31\"],
             \"api_token\": \"${token}\"
         }
-    ]" | sudo tee /private/var/root/Library/Group\ Containers/647VU45UJX.edgeguard/environments.json
+    ]" | sudo tee "/private/var/root/Library/Group\ Containers/647VU45UJX.edgeguard/environments.json"
     
     # install applications
     systemextensionsctl developer on
