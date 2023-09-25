@@ -19,6 +19,8 @@ try {
         shell('egctl logout');
     } else if (os.platform() == 'win32') {
         cmd(`curl localhost:3128/config & curl localhost:3128/connections`);
+    } else if (os.platform() == "macos") {
+        shell(`curl localhost:3128/config & curl localhost:3128/connections`);
     } else {
         let platform = os.platform();
         core.setFailed(`${platform} not supported`);

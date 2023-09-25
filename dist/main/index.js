@@ -4330,9 +4330,51 @@ async function status_windows() {
     await cmd(`sc query egtunnelservice & sleep 5 & curl localhost:3128/config`)
 }
 
+async function install_macos(token, release_channel) {
+    await shell(`
+    # create the environment file
+    mkdir -p /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard
+    rm -f /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard/environments.json
+    echo "[
+        {
+            \\"name\\": \\"001 prod\\",
+            \\"domain_suffix\\": \\"edge-guardian.io\\",
+            \\"echo_ips\\": [\\"13.248.203.97\\", \\"76.223.84.31\\"],
+            \\"api_token\\": \\"${token}\\"
+        }
+    ]" > /private/var/root/Library/Group\\ Containers/647VU45UJX.edgeguard/environments.json
+    
+    # install applications
+    echo "https://edgeguard-app.s3.us-west-1.amazonaws.com/dmg/${release_channel}/EdgeGuardian-Installer.dmg"
+    curl -O https://edgeguard-app.s3.us-west-1.amazonaws.com/dmg/${release_channel}/EdgeGuardian-Installer.dmg
+    hdiutil mount $DMG_FILE
+    cp -R "/Volumes/Install EdgeGuardian/EdgeGuardian.app" /Applications
+    hdiutil unmount "/Volumes/Install EdgeGuardian"
+    rm $DMG_FILE
+    
+    open /Applications/EdgeGuardian.app
+    
+    # wait for the app to start
+    sleep 10
+    `)
+}
+
+async function status_macos() {
+    await shell(`
+    # check the status
+    systemextensionsctl list | grep com.edgeguard
+    networksetup -listallnetworkservices
+    
+    ps -eaf | grep com.edgeguard
+    
+    curl localhost:3128/config
+    curl https://ifconfig.me/ip
+    `)
+}
+
 async function main() {
     const token = core.getInput('api_key');
-    var release_channel = core.getInput('release_channel');
+    let release_channel = core.getInput('release_channel');
     if (release_channel === '') {
         release_channel = 'default';
     }
@@ -4343,6 +4385,9 @@ async function main() {
         await install_linux();
         await login_linux(token);
         await status_linux();
+    } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() === 'macos') {
+        await install_macos(token, release_channel);
+        await status_macos();
     } else {
         let platform = os__WEBPACK_IMPORTED_MODULE_0__.platform();
         core.setFailed(`${platform} not supported`);
