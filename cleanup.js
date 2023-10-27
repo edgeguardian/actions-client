@@ -24,5 +24,5 @@ try {
         core.setFailed(`${platform} not supported`);
     }
 } catch (error) {
-    core.setFailed(error.message);
+    // Ignore error.
 }
