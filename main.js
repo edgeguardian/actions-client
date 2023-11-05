@@ -111,7 +111,7 @@ async function status_windows() {
     await cmd(`sc query egtunnelservice & sleep 5 & curl localhost:3128/config`)
 }
 
-async function install_macos(token, release_channel) {
+async function install_macos() {
     await shell(`
     curl --proto '=https' --tlsv1.2 -O https://edgeguard-app.s3.us-west-1.amazonaws.com/macos-headless/eg-client.rb
     brew install -s eg-client.rb
@@ -122,7 +122,8 @@ async function install_macos(token, release_channel) {
     sudo cat $(brew --prefix)/defaults;
     `)
     await shell(`
-    sudo brew services start eg-client
+    sudo brew services restart eg-client
+    sleep 5
     `)
 }
 
@@ -148,7 +149,7 @@ async function main() {
         await login_linux(token);
         await status_linux();
     } else if (os.platform() == 'darwin') {
-        await install_macos(token, release_channel);
+        await install_macos();
         await login_macos(token);
         await status_macos();
     } else {
