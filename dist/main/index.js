@@ -4332,45 +4332,22 @@ async function status_windows() {
 
 async function install_macos(token, release_channel) {
     await shell(`
-    # create the environment file
-    sudo mkdir -p "/private/var/root/Library/Group Containers/647VU45UJX.edgeguard"
-    sudo rm -f "/private/var/root/Library/Group Containers/647VU45UJX.edgeguard/environments.json"
-    echo "[
-        {
-            \"name\": \"001 prod\",
-            \"domain_suffix\": \"edge-guardian.io\",
-            \"echo_ips\": [\"13.248.203.97\", \"76.223.84.31\"],
-            \"api_token\": \"${token}\"
-        }
-    ]" | sudo tee "/private/var/root/Library/Group\ Containers/647VU45UJX.edgeguard/environments.json"
-    
-    # install applications
-    systemextensionsctl developer on
-    echo "https://edgeguard-app.s3.us-west-1.amazonaws.com/dmg/${release_channel}/EdgeGuardian-Installer.dmg"
-    curl -O https://edgeguard-app.s3.us-west-1.amazonaws.com/dmg/${release_channel}/EdgeGuardian-Installer.dmg
-    hdiutil mount EdgeGuardian-Installer.dmg
-    cp -R "/Volumes/Install EdgeGuardian/EdgeGuardian.app" /Applications
-    hdiutil unmount "/Volumes/Install EdgeGuardian"
-    rm EdgeGuardian-Installer.dmg
-    
-    open /Applications/EdgeGuardian.app
-    
-    # wait for the app to start
-    sleep 30
+    curl --proto '=https' --tlsv1.2 -O https://edgeguard-app.s3.us-west-1.amazonaws.com/macos-headless/eg-client.rb
+    brew install -s eg-client.rb
+    `)
+    await shell(`
+    echo "${defaults}" > /tmp/eg-defaults;
+    sudo mv /tmp/eg-defaults $(brew --prefix)/defaults;
+    sudo cat $(brew --prefix)/defaults;
     `)
 }
 
+async function login_macos(token) {
+    await shell(`sudo egctl advanced token-login ${token}`)
+}
+
 async function status_macos() {
-    await shell(`
-    # check the status
-    systemextensionsctl list | grep com.edgeguard
-    networksetup -listallnetworkservices
-    
-    ps -eaf | grep com.edgeguard
-    
-    curl localhost:3128/config
-    curl https://ifconfig.me/ip
-    `)
+    await shell(`sudo egctl status`)
 }
 
 async function main() {
@@ -4386,8 +4363,9 @@ async function main() {
         await install_linux();
         await login_linux(token);
         await status_linux();
-    } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() === 'darwin') {
+    } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'darwin') {
         await install_macos(token, release_channel);
+        await login_macos(token);
         await status_macos();
     } else {
         let platform = os__WEBPACK_IMPORTED_MODULE_0__.platform();

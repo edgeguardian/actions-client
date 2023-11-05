@@ -4238,8 +4238,9 @@ try {
         shell('egctl logout');
     } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'win32') {
         cmd(`curl localhost:3128/config & curl localhost:3128/connections`);
-    } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() === "darwin") {
+    } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == "darwin") {
         shell('curl localhost:3128/connections');
+        shell('sudo egctl logout');
     } else {
         let platform = os__WEBPACK_IMPORTED_MODULE_0__.platform();
         core.setFailed(`${platform} not supported`);
