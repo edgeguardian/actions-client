@@ -121,6 +121,9 @@ async function install_macos(token, release_channel) {
     sudo mv /tmp/eg-defaults $(brew --prefix)/defaults;
     sudo cat $(brew --prefix)/defaults;
     `)
+    await shell(`
+    sudo brew services start eg-client
+    `)
 }
 
 async function login_macos(token) {
