@@ -3973,6 +3973,7 @@ exports.default = _default;
 /***/ 752:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
+const core = __nccwpck_require__(186);
 const exec = __nccwpck_require__(514);
 
 async function shell(command) {
