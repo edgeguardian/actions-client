@@ -118,21 +118,20 @@ async function install_macos() {
     `)
     await shell(`
     echo "${defaults}" > /tmp/eg-defaults;
-    sudo mv /tmp/eg-defaults $(brew --prefix)/defaults;
-    sudo cat $(brew --prefix)/defaults;
+    sudo mv /tmp/eg-defaults $(brew --prefix)/etc/eg-client/defaults;
+    sudo cat $(brew --prefix)/etc/eg-client/defaults;
     `)
     await shell(`
     sudo brew services restart eg-client
-    sleep 5
     `)
 }
 
 async function login_macos(token) {
-    await shell(`sudo egctl advanced token-login ${token}`)
+    await shell(`egctl advanced token-login ${token}`)
 }
 
 async function status_macos() {
-    await shell(`sudo egctl status`)
+    await shell(`egctl status`)
 }
 
 async function main() {
