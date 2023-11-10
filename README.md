@@ -6,6 +6,7 @@ This GitHub action connects your runner to your private network.
 1. ubuntu-latest
 2. Amazon Linux 2
 3. Windows Server 2019 and 2022
+4. macos-latest
 
 ## Inputs
 
