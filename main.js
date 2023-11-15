@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-const { shell, powershell, cmd } = require('./shell.js');
+const { shell, powershell, cmd, is_ui_client_running_macos } = require('./shell.js');
 import * as os from 'os';
 
 var defaults = core.getInput('defaults');
@@ -148,9 +148,12 @@ async function main() {
         await login_linux(token);
         await status_linux();
     } else if (os.platform() == 'darwin') {
-        await install_macos();
-        await login_macos(token);
-        await status_macos();
+        let result = await is_ui_client_running_macos();
+        if (result === undefined || result === 0) {
+            await install_macos();
+            await login_macos(token);
+            await status_macos();
+        }
     } else {
         let platform = os.platform();
         core.setFailed(`${platform} not supported`);

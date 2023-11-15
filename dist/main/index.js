@@ -3981,7 +3981,7 @@ async function shell(command) {
             "-c",
             command,
         ];
-        await exec.exec("/bin/sh", args);
+        return await exec.exec("/bin/sh", args);
     } catch (error) {
         core.setFailed(error.message);
     }
@@ -4013,9 +4013,22 @@ async function cmd(command) {
     }
 }
 
+async function is_ui_client_running_macos() {
+    return await shell(`
+        if ! pgrep EdgeGuardian &> /dev/null 2>&1; then
+            echo "EdgeGuardian not running"
+            exit 0
+        else
+            echo "EdgeGuardian is running"
+            exit 1
+        fi
+    `)
+}
+
 exports.shell = shell;
 exports.powershell = powershell;
 exports.cmd = cmd;
+exports.is_ui_client_running_macos = is_ui_client_running_macos;
 
 
 /***/ }),
@@ -4218,7 +4231,7 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony import */ var os__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(87);
 /* harmony import */ var os__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(os__WEBPACK_IMPORTED_MODULE_0__);
 const core = __nccwpck_require__(186);
-const { shell, powershell, cmd } = __nccwpck_require__(752);
+const { shell, powershell, cmd, is_ui_client_running_macos } = __nccwpck_require__(752);
 
 
 var defaults = core.getInput('defaults');
@@ -4367,9 +4380,12 @@ async function main() {
         await login_linux(token);
         await status_linux();
     } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'darwin') {
-        await install_macos();
-        await login_macos(token);
-        await status_macos();
+        let result = await is_ui_client_running_macos();
+        if (result === undefined || result === 0) {
+            await install_macos();
+            await login_macos(token);
+            await status_macos();
+        }
     } else {
         let platform = os__WEBPACK_IMPORTED_MODULE_0__.platform();
         core.setFailed(`${platform} not supported`);
