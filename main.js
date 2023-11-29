@@ -118,10 +118,10 @@ async function setup_macos(token) {
     else
         curl --proto '=https' --tlsv1.2 -O https://edgeguard-app.s3.us-west-1.amazonaws.com/macos-headless/eg-client.rb
         brew install -s eg-client.rb
+
         echo "${defaults}" > /tmp/eg-defaults;
         sudo mv /tmp/eg-defaults $(brew --prefix)/etc/eg-client/defaults;
         sudo cat $(brew --prefix)/etc/eg-client/defaults;
-        brew install -s eg-client.rb
         sudo brew services restart eg-client
         
         sudo egctl advanced token-login ${token}
