@@ -4014,16 +4014,9 @@ async function cmd(command) {
     }
 }
 
-async function is_ui_client_installed_macos() {
-    return await shell(`
-        test -d /Applications/EdgeGuardian.app
-    `)
-}
-
 exports.shell = shell;
 exports.powershell = powershell;
 exports.cmd = cmd;
-exports.is_ui_client_installed_macos = is_ui_client_installed_macos;
 
 
 /***/ }),
@@ -4338,27 +4331,24 @@ async function status_windows() {
     await cmd(`sc query egtunnelservice & sleep 5 & curl localhost:3128/config`)
 }
 
-async function install_macos() {
+async function setup_macos(token) {
     await shell(`
-    curl --proto '=https' --tlsv1.2 -O https://edgeguard-app.s3.us-west-1.amazonaws.com/macos-headless/eg-client.rb
-    brew install -s eg-client.rb
+    if [ -d /Applications/EdgeGuardian.app ]; then
+        echo "UI client already installed, skipping setup";
+    else
+        curl --proto '=https' --tlsv1.2 -O https://edgeguard-app.s3.us-west-1.amazonaws.com/macos-headless/eg-client.rb
+        brew install -s eg-client.rb
+        echo "${defaults}" > /tmp/eg-defaults;
+        sudo mv /tmp/eg-defaults $(brew --prefix)/etc/eg-client/defaults;
+        sudo cat $(brew --prefix)/etc/eg-client/defaults;
+        brew install -s eg-client.rb
+        sudo brew services restart eg-client
+        
+        sudo egctl advanced token-login ${token}
+        
+        sudo egctl status
+    fi
     `)
-    await shell(`
-    echo "${defaults}" > /tmp/eg-defaults;
-    sudo mv /tmp/eg-defaults $(brew --prefix)/etc/eg-client/defaults;
-    sudo cat $(brew --prefix)/etc/eg-client/defaults;
-    `)
-    await shell(`
-    sudo brew services restart eg-client
-    `)
-}
-
-async function login_macos(token) {
-    await shell(`egctl advanced token-login ${token}`)
-}
-
-async function status_macos() {
-    await shell(`egctl status`)
 }
 
 async function main() {
@@ -4375,14 +4365,7 @@ async function main() {
         await login_linux(token);
         await status_linux();
     } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'darwin') {
-        let result = await is_ui_client_installed_macos();
-        if (result === undefined || result === 1) {
-            await install_macos();
-            await login_macos(token);
-            await status_macos();
-        } else {
-            console.log("UI client already installed, skipping install");
-        }
+        await setup_macos(token);
     } else {
         let platform = os__WEBPACK_IMPORTED_MODULE_0__.platform();
         core.setFailed(`${platform} not supported`);

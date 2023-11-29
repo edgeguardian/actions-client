@@ -39,13 +39,6 @@ async function cmd(command) {
     }
 }
 
-async function is_ui_client_installed_macos() {
-    return await shell(`
-        test -d /Applications/EdgeGuardian.app
-    `)
-}
-
 exports.shell = shell;
 exports.powershell = powershell;
 exports.cmd = cmd;
-exports.is_ui_client_installed_macos = is_ui_client_installed_macos;
