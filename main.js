@@ -122,7 +122,10 @@ async function setup_macos(token) {
         echo "${defaults}" > /tmp/eg-defaults;
         sudo mv /tmp/eg-defaults $(brew --prefix)/etc/eg-client/defaults;
         sudo cat $(brew --prefix)/etc/eg-client/defaults;
-        sudo brew services restart eg-client
+        sudo brew services start eg-client
+        
+        sleep 1
+        sudo brew services info eg-client
         
         sudo egctl advanced token-login ${token}
         
