@@ -4248,6 +4248,7 @@ try {
                 sudo egctl logout
                 sudo brew services stop eg-client
                 sudo rm -rf $(brew --prefix)/Cellar/eg-client/0.0.1
+                brew cleanup
             fi
         `)
     } else {
