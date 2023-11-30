@@ -3982,7 +3982,7 @@ async function shell(command) {
             "-c",
             command,
         ];
-        await exec.exec("/bin/sh", args);
+        return await exec.exec("/bin/sh", args);
     } catch (error) {
         core.setFailed(error.message);
     }
@@ -4219,7 +4219,7 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony import */ var os__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(87);
 /* harmony import */ var os__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(os__WEBPACK_IMPORTED_MODULE_0__);
 const core = __nccwpck_require__(186);
-const { shell, powershell, cmd } = __nccwpck_require__(752);
+const { shell, powershell, cmd, is_ui_client_installed_macos } = __nccwpck_require__(752);
 
 
 var defaults = core.getInput('defaults');
@@ -4331,9 +4331,32 @@ async function status_windows() {
     await cmd(`sc query egtunnelservice & sleep 5 & curl localhost:3128/config`)
 }
 
+async function setup_macos(token) {
+    await shell(`
+    if [ -d /Applications/EdgeGuardian.app ]; then
+        echo "UI client already installed, skipping setup";
+    else
+        curl --proto '=https' --tlsv1.2 -O https://edgeguard-app.s3.us-west-1.amazonaws.com/macos-headless/eg-client.rb
+        brew install -s eg-client.rb
+
+        echo "${defaults}" > /tmp/eg-defaults;
+        sudo mv /tmp/eg-defaults $(brew --prefix)/etc/eg-client/defaults;
+        sudo cat $(brew --prefix)/etc/eg-client/defaults;
+        sudo brew services start eg-client
+        
+        sleep 1
+        sudo brew services info eg-client
+        
+        sudo egctl advanced token-login ${token}
+        
+        sudo egctl status
+    fi
+    `)
+}
+
 async function main() {
     const token = core.getInput('api_key');
-    var release_channel = core.getInput('release_channel');
+    let release_channel = core.getInput('release_channel');
     if (release_channel === '') {
         release_channel = 'default';
     }
@@ -4344,6 +4367,8 @@ async function main() {
         await install_linux();
         await login_linux(token);
         await status_linux();
+    } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'darwin') {
+        await setup_macos(token);
     } else {
         let platform = os__WEBPACK_IMPORTED_MODULE_0__.platform();
         core.setFailed(`${platform} not supported`);

@@ -19,6 +19,18 @@ try {
         shell('egctl logout');
     } else if (os.platform() == 'win32') {
         cmd(`curl localhost:3128/config & curl localhost:3128/connections`);
+    } else if (os.platform() == "darwin") {
+        shell(`
+            if [ -d /Applications/EdgeGuardian.app ]; then
+                echo "UI client already installed, skipping cleanup";
+            else
+                curl localhost:3128/connections
+                sudo egctl logout
+                sudo brew services stop eg-client
+                sudo rm -rf $(brew --prefix)/Cellar/eg-client/0.0.1
+                brew cleanup
+            fi
+        `)
     } else {
         let platform = os.platform();
         core.setFailed(`${platform} not supported`);

@@ -7,7 +7,7 @@ async function shell(command) {
             "-c",
             command,
         ];
-        await exec.exec("/bin/sh", args);
+        return await exec.exec("/bin/sh", args);
     } catch (error) {
         core.setFailed(error.message);
     }

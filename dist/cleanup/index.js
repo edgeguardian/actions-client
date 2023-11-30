@@ -3982,7 +3982,7 @@ async function shell(command) {
             "-c",
             command,
         ];
-        await exec.exec("/bin/sh", args);
+        return await exec.exec("/bin/sh", args);
     } catch (error) {
         core.setFailed(error.message);
     }
@@ -4239,6 +4239,18 @@ try {
         shell('egctl logout');
     } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'win32') {
         cmd(`curl localhost:3128/config & curl localhost:3128/connections`);
+    } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == "darwin") {
+        shell(`
+            if [ -d /Applications/EdgeGuardian.app ]; then
+                echo "UI client already installed, skipping cleanup";
+            else
+                curl localhost:3128/connections
+                sudo egctl logout
+                sudo brew services stop eg-client
+                sudo rm -rf $(brew --prefix)/Cellar/eg-client/0.0.1
+                brew cleanup
+            fi
+        `)
     } else {
         let platform = os__WEBPACK_IMPORTED_MODULE_0__.platform();
         core.setFailed(`${platform} not supported`);
