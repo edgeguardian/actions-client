@@ -7,7 +7,7 @@ This GitHub action connects your runner to your private network.
 2. Amazon Linux 2
 3. Windows Server 2019 and 2022
 4. macos-latest
-5. Self-hosted macos runners, requires `brew` to be installed, and running on a user that has passwordless sudo enabled. 
+5. Self-hosted macOS runners, only if EdgeGuardian app is not installed. Requires `brew` to be installed, and running on a user that has passwordless sudo enabled. 
 
 ## Inputs
 
