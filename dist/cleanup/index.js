@@ -3976,7 +3976,7 @@ exports.default = _default;
 const core = __nccwpck_require__(186);
 const exec = __nccwpck_require__(514);
 
-async function shell(command) {
+async function shell(command, ignore_errors = false) {
     try {
         const args = [
             "-c",
@@ -3984,11 +3984,13 @@ async function shell(command) {
         ];
         return await exec.exec("/bin/sh", args);
     } catch (error) {
-        core.setFailed(error.message);
+        if (!ignore_errors) {
+            core.setFailed(error.message);
+        }
     }
 }
 
-async function powershell(command) {
+async function powershell(command, ignore_errors = false) {
     try {
         const args = [
             "-ExecutionPolicy",
@@ -3998,11 +4000,13 @@ async function powershell(command) {
         ];
         await exec.exec("powershell.exe", args);
     } catch (error) {
-        core.setFailed(error.message);
+        if (!ignore_errors) {
+            core.setFailed(error.message);
+        }
     }
 }
 
-async function cmd(command) {
+async function cmd(command, ignore_errors = false) {
     try {
         const args = [
             "/c",
@@ -4010,7 +4014,9 @@ async function cmd(command) {
         ];
         await exec.exec("cmd.exe", args);
     } catch (error) {
-        core.setFailed(error.message);
+        if (!ignore_errors) {
+            core.setFailed(error.message);
+        }
     }
 }
 
@@ -4222,23 +4228,25 @@ const core = __nccwpck_require__(186);
 const { shell, cmd } = __nccwpck_require__(752);
 
 
+let ignore_errors = true;
+
 if (core.getState("EG_FAILED") == "true") {
     if (core.getInput('submit_diagnostics_on_failure') == "true") {
         try {
-            shell('egctl advanced log-upload');
+            shell('egctl advanced log-upload', ignore_errors);
         } catch (error) { }
     }
     try {
-        shell('cat /var/log/edgeguardian/datapath.log || true;')
+        shell('cat /var/log/edgeguardian/datapath.log', ignore_errors)
     } catch (error) { }
 }
 
 try {
     if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'linux') {
-        shell('curl localhost:3128/connections');
-        shell('egctl logout');
+        shell('curl localhost:3128/connections', ignore_errors);
+        shell('egctl logout', ignore_errors);
     } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'win32') {
-        cmd(`curl localhost:3128/config & curl localhost:3128/connections`);
+        cmd(`curl localhost:3128/config & curl localhost:3128/connections`, ignore_errors);
     } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == "darwin") {
         shell(`
             if [ -d /Applications/EdgeGuardian.app ]; then
@@ -4250,7 +4258,7 @@ try {
                 sudo rm -rf $(brew --prefix)/Cellar/eg-client/0.0.1
                 brew cleanup
             fi
-        `)
+        `, ignore_errors)
     } else {
         let platform = os__WEBPACK_IMPORTED_MODULE_0__.platform();
         core.setFailed(`${platform} not supported`);

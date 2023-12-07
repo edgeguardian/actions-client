@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const exec = require("@actions/exec");
 
-async function shell(command) {
+async function shell(command, ignore_errors = false) {
     try {
         const args = [
             "-c",
@@ -9,11 +9,13 @@ async function shell(command) {
         ];
         return await exec.exec("/bin/sh", args);
     } catch (error) {
-        core.setFailed(error.message);
+        if (!ignore_errors) {
+            core.setFailed(error.message);
+        }
     }
 }
 
-async function powershell(command) {
+async function powershell(command, ignore_errors = false) {
     try {
         const args = [
             "-ExecutionPolicy",
@@ -23,11 +25,13 @@ async function powershell(command) {
         ];
         await exec.exec("powershell.exe", args);
     } catch (error) {
-        core.setFailed(error.message);
+        if (!ignore_errors) {
+            core.setFailed(error.message);
+        }
     }
 }
 
-async function cmd(command) {
+async function cmd(command, ignore_errors = false) {
     try {
         const args = [
             "/c",
@@ -35,7 +39,9 @@ async function cmd(command) {
         ];
         await exec.exec("cmd.exe", args);
     } catch (error) {
-        core.setFailed(error.message);
+        if (!ignore_errors) {
+            core.setFailed(error.message);
+        }
     }
 }
 
