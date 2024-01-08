@@ -4235,7 +4235,7 @@ PLATFORM_UUID=actions-client
 `
 }
 
-async function install_linux() {
+async function install_linux(release_channel) {
     await shell(`
     sudo mkdir -p /etc/edgeguardian;
     echo "${defaults}" > /tmp/eg-defaults;
@@ -4243,7 +4243,7 @@ async function install_linux() {
     sudo cat /etc/edgeguardian/defaults;
     `)
     await shell(`
-    curl --proto '=https' --tlsv1.2 -sSf https://edgeguard-app.s3.us-west-1.amazonaws.com/linux/install.sh | sudo bash
+    curl --proto '=https' --tlsv1.2 -sSf https://edgeguard-app.s3.us-west-1.amazonaws.com/linux/install.sh | sudo bash -s -- -c ${release_channel}
     `)
 }
 
@@ -4370,7 +4370,7 @@ async function main() {
         await install_windows(token, release_channel);
         await status_windows();
     } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'linux') {
-        await install_linux();
+        await install_linux(release_channel);
         await login_linux(token);
         await status_linux();
     } else if (os__WEBPACK_IMPORTED_MODULE_0__.platform() == 'darwin') {

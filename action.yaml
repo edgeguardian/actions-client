@@ -10,7 +10,7 @@ inputs:
     required: false
     default: 'false'
   release_channel:
-    description: "Client release channel to use (Windows only)"
+    description: "Client release channel to use (Windows and Linux only)"
     required: false
     default: 'default'
 
